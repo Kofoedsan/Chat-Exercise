@@ -17,6 +17,8 @@ public class ClientHandler implements Runnable{
 
     @Override
     public void run() {
+        //TODO: lytteLoop
+        //TODO: COMMANDS
         try {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());

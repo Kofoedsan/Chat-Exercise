@@ -15,7 +15,7 @@ public class Server implements Runnable{
     protected boolean isStopped    = false;
 
     protected ExecutorService threadPool =
-            Executors.newFixedThreadPool(10);
+            Executors.newFixedThreadPool(100);
 
     public Server(int serverPort) {
         this.serverPort = serverPort;
@@ -35,6 +35,7 @@ public class Server implements Runnable{
                 ioException.printStackTrace();
             }
             try {
+                //her tildeles en tråd i poolen en clienthanldere der lytter. ny tråd tildels først når ny client connecter
                 this.threadPool.execute(new ClientHandler(clientSocket));
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -47,6 +48,7 @@ public class Server implements Runnable{
     }
 
     public static void main(String[]args){
+        //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
         Server server = new Server(8080);
         new Thread(server).start();
        //TODO: Make the server stop on command server.stop();
@@ -55,14 +57,16 @@ public class Server implements Runnable{
     private synchronized boolean isStopped() {
         return this.isStopped;
     }
+    //Stop metode til at lukke serveren
     public synchronized void stop(){
         this.isStopped = true;
         try {
             this.serverSocket.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Error closing server", e);
+        } catch (IOException ioException) {
+            throw new RuntimeException("Serveren blev revet fra hinanden");
         }
     }
+    //Åbner serverSocket
     private void openSS(){
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
