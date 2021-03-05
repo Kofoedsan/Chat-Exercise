@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
-public class ChatServer {
+public class Server {
 
 
     //Call server with arguments like this: 0.0.0.0 8088 logfile.log
