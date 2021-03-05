@@ -7,7 +7,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="chat-server" />
-        <module name="echo_classdemo" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
