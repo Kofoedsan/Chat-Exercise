@@ -6,11 +6,12 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="chat-server" />
+        <module name="Chat-exercise" />
         <module name="chat-exercise" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="Chat-exercise" target="8" />
       <module name="chat-exercise" target="8" />
       <module name="chat-server" target="8" />
       <module name="echo_classdemo" target="8" />
