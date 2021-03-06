@@ -1,4 +1,4 @@
-package Client;
+package server;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,11 +15,10 @@ public class SenderWorker implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("test outputthread");
+        System.out.println("vi er i servers senderworker");
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
-//                System.out.print("klient skriver nu: ");
                 out.writeUTF(scanner.nextLine());
             } catch (IOException e) {
                 e.printStackTrace();

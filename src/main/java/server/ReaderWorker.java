@@ -1,7 +1,6 @@
-package Client;
+package server;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class ReaderWorker implements Runnable {
@@ -14,14 +13,14 @@ public class ReaderWorker implements Runnable {
 
     @Override
     public void run() {
-        String incomingText = "1";
-        System.out.println("test inputthread");
+        String incomingText = "";
+        System.out.println("vi er i servers readerworker thread");
         Scanner scanner = new Scanner(System.in);
-        while (!incomingText.equals("stop")) {
+        while (!incomingText.equals("Daniel")) {
             try {
                 incomingText = in.readUTF();
 //                    if (!incomingText.equalsIgnoreCase("0")) {
-                System.out.println("besked fra server: " + incomingText);
+                System.out.println("besked fra klient: " + incomingText);
 //                }
             } catch (Exception e) {
                 e.printStackTrace();

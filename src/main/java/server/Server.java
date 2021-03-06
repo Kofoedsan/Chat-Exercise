@@ -41,18 +41,8 @@ public class Server implements Runnable{
                 ioException.printStackTrace();
             }
         }
-
-
-
-
     }
 
-    public static void main(String[]args){
-        //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
-        Server server = new Server(8080);
-        new Thread(server).start();
-       //TODO: Make the server stop on command server.stop();
-    }
 
     private synchronized boolean isStopped() {
         return this.isStopped;
@@ -73,5 +63,13 @@ public class Server implements Runnable{
         } catch (IOException ioException) {
             throw new RuntimeException("Error opening port : " + serverPort, ioException);
         }
+    }
+
+    public static void main(String[] args) {
+        //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
+        Server server = new Server(8080);
+        new Thread(server).start();
+        System.out.println("det tjøra");
+        //TODO: Make the server stop on command server.stop();
     }
 }
