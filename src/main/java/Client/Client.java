@@ -42,5 +42,4 @@ public class Client implements Runnable {
         Thread chatClientThread = new Thread(new Client("0.0.0.0", 6668));
         chatClientThread.start();
     }
-
 }
