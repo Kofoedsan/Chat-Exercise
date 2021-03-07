@@ -65,6 +65,7 @@ public class Server implements Runnable{
         }
     }
 
+
     public static void main(String[] args) {
         //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
         Server server = new Server(8080);
@@ -72,4 +73,5 @@ public class Server implements Runnable{
         System.out.println("det tjøra");
         //TODO: Make the server stop on command server.stop();
     }
+
 }

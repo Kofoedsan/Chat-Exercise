@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class ReaderWorker implements Runnable {
     DataInputStream in = null;
-
+    String incomingText;
     public ReaderWorker(DataInputStream in) {
         this.in = in;
     }
@@ -14,10 +14,8 @@ public class ReaderWorker implements Runnable {
 
     @Override
     public void run() {
-        String incomingText = "1";
-        System.out.println("test inputthread");
-        Scanner scanner = new Scanner(System.in);
-        while (!incomingText.equals("stop")) {
+
+        while (true) {
             try {
                 incomingText = in.readUTF();
 //                    if (!incomingText.equalsIgnoreCase("0")) {

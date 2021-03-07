@@ -39,7 +39,7 @@ public class Client implements Runnable {
     }
 
     public static void main(String[] args) {
-        Thread chatClientThread = new Thread(new Client("0.0.0.0", 8080));
+        Thread chatClientThread = new Thread(new Client("157.230.20.13", 8080));
         chatClientThread.start();
     }
 }

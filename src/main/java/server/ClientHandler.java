@@ -9,6 +9,8 @@ import java.util.Vector;
 public class ClientHandler implements Runnable {
     static Vector<String> activeclients = new Vector<>();
     static Vector<String> registredClients = new Vector<>();
+    static Vector<Socket> socketList = new Vector<>();
+    static Vector<ClientHandler> handler = new Vector<>();
     Socket clientSocket;
     DataInputStream in;
     DataOutputStream out;
@@ -17,11 +19,20 @@ public class ClientHandler implements Runnable {
     String username="";
     String message="";
     String thisUser="";
+    boolean isLoggedIn;
 
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
+        //socketList.add(this.clientSocket);
     }
 
+    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username) {
+        this.clientSocket = clientSocket;
+        this.in = in;
+        this.out = out;
+        this.username = username;
+        this.isLoggedIn = true;
+    }
 
     @Override
     public void run() {
@@ -36,7 +47,6 @@ public class ClientHandler implements Runnable {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
 
-            out.writeUTF("Hello from thread: " + Thread.currentThread().getName());
             while(true){
             if(in.available() > 1){
                 input = in.readUTF();
@@ -48,11 +58,15 @@ public class ClientHandler implements Runnable {
                // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
 
             switch (command){
-                case "CONNECT": if (registredClients.contains(username) && !activeclients.contains(username))
-                {activeclients.add(username); onlineCommand();}
-                else out.writeUTF("illegal input was recieved"); //TODO: SHUTDOWN!!!
+                case "CONNECT":
+                    if (registredClients.contains(username) && !activeclients.contains(username))
+                {activeclients.add(username);
+                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
+                handler.add(newClient);
+                broadcastUsers(onlineCommand());}
+                     else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
                      break;
-                case "SEND": break;
+                case "SEND": sendMessage(username); break;
                 case "CLOSE": break;
                // case "4": break;
                // case "5": break;
@@ -115,9 +129,31 @@ public class ClientHandler implements Runnable {
 
         //TODO: Remember to close streams
     }
-    public void onlineCommand() throws IOException {
+
+    //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
+    public StringBuilder onlineCommand() throws IOException {
+        StringBuilder sb = new StringBuilder();
         for (String activeclient : activeclients) {
-            out.writeUTF("ONLINE#" + activeclient);
+          sb.append(activeclient+", ");
         }
+        return sb;
     }
+
+    public void broadcastUsers(StringBuilder sb) throws IOException {
+        for (ClientHandler ch : handler) {
+            ch.out.writeUTF("ONLINE#"+sb);
+        }
+
+    }
+
+    public void sendMessage(String reciver) throws IOException {
+
+        for (ClientHandler ch : handler) {
+            if (ch.username.equals(reciver) && ch.isLoggedIn==true){
+                ch.out.writeUTF(this.username+":"+ message);
+            }
+        }
+
+    }
+
 }
