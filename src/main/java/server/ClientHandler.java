@@ -66,7 +66,7 @@ public class ClientHandler implements Runnable {
                 broadcastUsers(onlineCommand());}
                      else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
                      break;
-                case "SEND": sendMessage(username); break;
+                case "SEND":  sendMessage(username); break;
                 case "CLOSE": break;
                // case "4": break;
                // case "5": break;
@@ -147,13 +147,13 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendMessage(String reciver) throws IOException {
-
         for (ClientHandler ch : handler) {
-            if (ch.username.equals(reciver) && ch.isLoggedIn==true){
-                ch.out.writeUTF(this.username+":"+ message);
-            }
+         if (ch.username.equals(reciver) && ch.isLoggedIn==true){
+              ch.out.writeUTF(this.username+":"+ message);
+         }
         }
-
     }
-
 }
+
+
+
