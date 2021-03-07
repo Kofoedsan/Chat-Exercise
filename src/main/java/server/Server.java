@@ -15,22 +15,26 @@ public class Server implements Runnable{
     protected boolean isStopped    = false;
 
     protected ExecutorService threadPool =
+//            er det ikke på sin plads at sætte maks til det antal brugere vi hardcoder?
             Executors.newFixedThreadPool(100);
 
     public Server(int serverPort) {
         this.serverPort = serverPort;
     }
 
+//    hvorfor er det nu, at det er en fordel at denne proces kører som en tråd?
     @Override
     public void run() {
 
         synchronized (this){
             this.runningThread = Thread.currentThread();
         }
+        System.out.println("server started");
         openSS();
         while(!isStopped()){
             try {
                 clientSocket = this.serverSocket.accept();
+                System.out.println("client with adress " + clientSocket.getInetAddress() + " connected.");
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -60,6 +64,7 @@ public class Server implements Runnable{
     private void openSS(){
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
+            System.out.println("server listening at port " + serverPort);
         } catch (IOException ioException) {
             throw new RuntimeException("Error opening port : " + serverPort, ioException);
         }

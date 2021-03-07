@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ClientHandler implements Runnable {
-//    hvorfor static?
+    //    hvorfor static?
     static Vector<String> activeclients = new Vector<>();
     static Vector<String> registredClients = new Vector<>();
     static Vector<Socket> socketList = new Vector<>();
@@ -15,20 +15,20 @@ public class ClientHandler implements Runnable {
     Socket clientSocket;
     DataInputStream in;
     DataOutputStream out;
-    String input ="";
-    String command ="";
-    String username="";
-    String message="";
-    String thisUser="";
+    String input = "";
+    String command = "";
+    String username = "";
+    String message = "";
+    String thisUser = "";
     boolean isLoggedIn;
 
-//    den endnu ikke connectede klient
+    //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         //socketList.add(this.clientSocket);
     }
 
-//    den connectede klient. (hvad sker der med det ikke-connectede objekt når man er igennem)
+    //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man er igennem)
     public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username) {
         this.clientSocket = clientSocket;
         this.in = in;
@@ -50,33 +50,51 @@ public class ClientHandler implements Runnable {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
 
-            while(true){
-            if(in.available() > 1){
-                input = in.readUTF();
-                StringTokenizer st = new StringTokenizer(input, "#");
-                int countTokens = st.countTokens();
-                if (countTokens == 1){command = st.nextToken();}
-                if (countTokens == 2){command = st.nextToken(); username = st.nextToken();}
-                if (countTokens == 3){command = st.nextToken(); username = st.nextToken(); message = st.nextToken();}
-               // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
+            while (true) {
+                if (in.available() > 1) {
+                    input = in.readUTF();
+                    StringTokenizer st = new StringTokenizer(input, "#");
+                    String usernameRequest = "";
+                    int countTokens = st.countTokens();
+                    if (countTokens == 1) {
+                        command = st.nextToken();
+                    }
+                    if (countTokens == 2) {
+                        command = st.nextToken();
+                        usernameRequest = st.nextToken();
+                    }
+                    if (countTokens == 3) {
+                        command = st.nextToken();
+                        username = st.nextToken();
+                        message = st.nextToken();
+                    }
+                    // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
 
-            switch (command){
-                case "CONNECT":
-                    if (registredClients.contains(username) && !activeclients.contains(username))
-                {activeclients.add(username);
+                    switch (command) {
+                        case "CONNECT":
+                            if (registredClients.contains(usernameRequest) && !activeclients.contains(usernameRequest) && this.username.isEmpty()) {
+                                this.username = usernameRequest;
+                                activeclients.add(username);
+
 
 //                man kunne sætte den resterende værdi username, så man beholdt socket.
-                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
-                handler.add(newClient);
-                broadcastUsers(onlineCommand());}
-                     else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
-                     break;
-                case "SEND":  sendMessage(username); break;
-                case "CLOSE": break;
-               // case "4": break;
-               // case "5": break;
-                default: out.writeUTF("Du har ikke indtastet en gyldig kommando"); break;
-            }}
+                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
+                                handler.add(newClient);
+                                broadcastUsers(onlineCommand());
+                            } else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
+                            break;
+                        case "SEND":
+                            sendMessage(username);
+                            break;
+                        case "CLOSE":
+                            break;
+                        // case "4": break;
+                        // case "5": break;
+                        default:
+                            out.writeUTF("Du har ikke indtastet en gyldig kommando");
+                            break;
+                    }
+                }
 
             }
 
@@ -89,49 +107,6 @@ public class ClientHandler implements Runnable {
             ioException.printStackTrace();
         }
 
-//        Thread inputThread = new Thread(new ReaderWorker(in));
-//        Thread outputThread = new Thread(new SenderWorker(out));
-//        inputThread.start();
-//        outputThread.start();
-
-
-
-
-//        Thread lytteLoop = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String inputString = "";
-//                while (true) {
-//                    try {
-//                        inputString = in.readUTF();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("client " + clientSocket.getInetAddress() + " skriver: " + inputString);
-////                }
-////            }
-////        });
-//
-//        Thread outputLoop = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String outputString = "";
-//                Scanner scanner = new Scanner(System.in);
-//                while (true) {
-//                    outputString = scanner.nextLine();
-//                    try {
-//                        out.writeUTF(outputString);
-//
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("server skriver: " + outputString);
-//                }
-//            }
-//        });
-//
-
-
         //TODO: Remember to close streams
     }
 
@@ -139,23 +114,23 @@ public class ClientHandler implements Runnable {
     public StringBuilder onlineCommand() throws IOException {
         StringBuilder sb = new StringBuilder();
         for (String activeclient : activeclients) {
-          sb.append(activeclient+", ");
+            sb.append(activeclient + ", ");
         }
         return sb;
     }
 
     public void broadcastUsers(StringBuilder sb) throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF("ONLINE#"+sb);
+            ch.out.writeUTF("ONLINE#" + sb);
         }
 
     }
 
     public void sendMessage(String reciver) throws IOException {
         for (ClientHandler ch : handler) {
-         if (ch.username.equals(reciver) && ch.isLoggedIn==true){
-              ch.out.writeUTF(this.username+":"+ message);
-         }
+            if (ch.username.equals(reciver) && ch.isLoggedIn == true) {
+                ch.out.writeUTF(this.username + ":" + message);
+            }
         }
     }
 }
