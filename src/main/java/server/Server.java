@@ -70,8 +70,7 @@ public class Server implements Runnable{
         //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
         Server server = new Server(8080);
         new Thread(server).start();
-        System.out.println("det tjøra");
-        //TODO: Make the server stop on command server.stop();
+       //TODO: Make the server stop on command server.stop();
     }
 
 }

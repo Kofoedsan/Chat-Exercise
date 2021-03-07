@@ -7,6 +7,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ClientHandler implements Runnable {
+//    hvorfor static?
     static Vector<String> activeclients = new Vector<>();
     static Vector<String> registredClients = new Vector<>();
     static Vector<Socket> socketList = new Vector<>();
@@ -21,11 +22,13 @@ public class ClientHandler implements Runnable {
     String thisUser="";
     boolean isLoggedIn;
 
+//    den endnu ikke connectede klient
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         //socketList.add(this.clientSocket);
     }
 
+//    den connectede klient. (hvad sker der med det ikke-connectede objekt når man er igennem)
     public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username) {
         this.clientSocket = clientSocket;
         this.in = in;
@@ -61,6 +64,8 @@ public class ClientHandler implements Runnable {
                 case "CONNECT":
                     if (registredClients.contains(username) && !activeclients.contains(username))
                 {activeclients.add(username);
+
+//                man kunne sætte den resterende værdi username, så man beholdt socket.
                 ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
                 handler.add(newClient);
                 broadcastUsers(onlineCommand());}
@@ -84,10 +89,10 @@ public class ClientHandler implements Runnable {
             ioException.printStackTrace();
         }
 
-        Thread inputThread = new Thread(new ReaderWorker(in));
-        Thread outputThread = new Thread(new SenderWorker(out));
-        inputThread.start();
-        outputThread.start();
+//        Thread inputThread = new Thread(new ReaderWorker(in));
+//        Thread outputThread = new Thread(new SenderWorker(out));
+//        inputThread.start();
+//        outputThread.start();
 
 
 

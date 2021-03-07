@@ -1,7 +1,4 @@
-package Client;
-
-import Client3.ReaderWorker;
-import Client3.SenderWorker;
+package Client2;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
