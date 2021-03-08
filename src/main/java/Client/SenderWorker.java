@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class SenderWorker implements Runnable {
-    DataOutputStream out = null;
+    DataOutputStream out;
 
     public SenderWorker(DataOutputStream out) {
         this.out = out;
@@ -15,7 +15,6 @@ public class SenderWorker implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("test outputthread");
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {

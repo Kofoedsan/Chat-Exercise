@@ -17,7 +17,7 @@ public class ReaderWorker implements Runnable {
             try {
                 if(in.available() > 1){
                     incomingText = in.readUTF();
-                    System.out.println("besked fra server: " + incomingText);
+                    System.out.println(incomingText);
                 }
             } catch (IOException ioException) {
                 ioException.printStackTrace();

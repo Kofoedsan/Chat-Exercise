@@ -129,7 +129,7 @@ public class ClientHandler implements Runnable {
 
     public void sendToaAll() throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF( loggedInUser +":"+ message);
+            ch.out.writeUTF( "MESSAGE#"+loggedInUser+"#"+message);
         }
     }
 
@@ -137,7 +137,7 @@ public class ClientHandler implements Runnable {
 
         for (ClientHandler ch : handler) {
             if (ch.username.equals(username) && ch.isLoggedIn == true) {
-                ch.out.writeUTF(loggedInUser + ":" + message);
+                ch.out.writeUTF("MESSAGE#"+loggedInUser + "#" + message);
             }
 
         }
