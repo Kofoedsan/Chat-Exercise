@@ -21,7 +21,6 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
         DataInputStream in = null;
         try {
             in = new DataInputStream(socket.getInputStream());

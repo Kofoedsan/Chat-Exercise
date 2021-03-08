@@ -18,8 +18,8 @@ public class SenderWorker implements Runnable {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
-//                System.out.print("klient skriver nu: ");
-                out.writeUTF(scanner.nextLine());
+                line = scanner.nextLine();
+                out.writeUTF(line);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -15,13 +15,31 @@ public class ReaderWorker implements Runnable {
 
         while (true) {
             try {
-                if(in.available() > 1){
-                    incomingText = in.readUTF();
-                    System.out.println(incomingText);
-                }
+                incomingText = in.readUTF();
+                if(incomingText.contains("CLOSE#")){
+                    switch (incomingText) {
+                        case "CLOSE#0":
+                            System.out.println("Logged out without error");
+                            in.close();
+                            System.exit(1);
+                            break;
+                        case "CLOSE#1":
+                            System.out.println("Logged out! illegal input was recived");
+                            in.close();
+                            System.exit(1);
+                            break;
+                        case "CLOSE#2":
+                            System.out.println("Logged out! user not found");
+                            in.close();
+                            System.exit(1);
+                            break;
+                    }}else{
+                        System.out.println(incomingText);}
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
+
+
         }
-    }
-}
+                }
+            }

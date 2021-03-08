@@ -86,7 +86,7 @@ public class ClientHandler implements Runnable {
                         case "SEND": if(username.equals("*")) {sendToaAll();} else {
                             sendMessage(username);}
                             break;
-                        case "CLOSE":
+                        case "CLOSE": out.writeUTF("CLOSE#0");
                             break;
                         // case "4": break;
                         // case "5": break;
@@ -109,6 +109,8 @@ public class ClientHandler implements Runnable {
 
         //TODO: Remember to close streams
     }
+
+
 
     //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
     public StringBuilder onlineCommand() throws IOException {
