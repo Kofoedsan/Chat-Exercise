@@ -9,6 +9,9 @@ import java.util.Vector;
 public class ClientHandler implements Runnable {
     //    hvorfor static?
     static Vector<String> activeclients = new Vector<>();
+
+//    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
+//    kunne det lette overskueligheden med en klientklasse, så man havde socket-håndtering og User adskilt, ligesom i mario med dbmapper?
     static Vector<String> registredClients = new Vector<>();
     static Vector<Socket> socketList = new Vector<>();
     static Vector<ClientHandler> handler = new Vector<>();
@@ -17,10 +20,12 @@ public class ClientHandler implements Runnable {
     DataOutputStream out;
     String input = "";
     String command = "";
+//    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
     String username = "";
     String message = "";
-    String thisUser = "";
-    boolean isLoggedIn;
+    String loggedInUser = "";
+
+    boolean isLoggedIn=false;
 
     //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
@@ -28,12 +33,12 @@ public class ClientHandler implements Runnable {
         //socketList.add(this.clientSocket);
     }
 
-    //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man er igennem)
-    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username) {
+    //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man opretter dette objekt?)
+    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String loggedInUser) {
         this.clientSocket = clientSocket;
         this.in = in;
         this.out = out;
-        this.username = username;
+        this.loggedInUser = loggedInUser;
         this.isLoggedIn = true;
     }
 
@@ -54,14 +59,14 @@ public class ClientHandler implements Runnable {
                 if (in.available() > 1) {
                     input = in.readUTF();
                     StringTokenizer st = new StringTokenizer(input, "#");
-                    String usernameRequest = "";
+                    String username = "";
                     int countTokens = st.countTokens();
                     if (countTokens == 1) {
                         command = st.nextToken();
                     }
                     if (countTokens == 2) {
                         command = st.nextToken();
-                        usernameRequest = st.nextToken();
+                        username = st.nextToken();
                     }
                     if (countTokens == 3) {
                         command = st.nextToken();
@@ -72,14 +77,18 @@ public class ClientHandler implements Runnable {
 
                     switch (command) {
                         case "CONNECT":
-                            if (registredClients.contains(usernameRequest) && !activeclients.contains(usernameRequest) && this.username.isEmpty()) {
-                                this.username = usernameRequest;
-                                activeclients.add(username);
+                            if (registredClients.contains(username) && !activeclients.contains(username) && this.loggedInUser.isEmpty()) {
+                                this.loggedInUser = username;
+                                this.isLoggedIn=true;
+                                activeclients.add(loggedInUser);
 
 
-//                man kunne sætte den resterende værdi username, så man beholdt socket.
-                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
-                                handler.add(newClient);
+//                man kunne sætte den resterende værdi username, så man beholdt socket. man har vistnok al data udfyldt for newClient, så man kunne:
+                                handler.add(this);
+
+//                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
+//                                handler.add(newClient);
+
                                 broadcastUsers(onlineCommand());
                             } else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
                             break;
