@@ -1,0 +1,4 @@
+Mon Mar 08 12:01:16 CET 2021 : server started
+Mon Mar 08 12:06:41 CET 2021 : server started
+Mon Mar 08 12:06:41 CET 2021 : server listening at port 8080
+Mon Mar 08 12:07:01 CET 2021 : client with adress /192.168.42.145 connected.
