@@ -27,7 +27,7 @@ public class LogHandler {
         }
     }
 
-    public void addLog(String message) {
+    public synchronized void addLog(String message) {
         System.out.println(message);
         this.date = new Date();
         try {
