@@ -1,26 +1,41 @@
 package server;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.Date;
 
 public class LogHandler {
+    Date date;
+    File file = null;
+    String filename = "";
+    FileWriter fileWriter = null;
+    String message="";
 
-    public LogHandler(String l) {
+//    public LogHandler(String message) {
+//        this.message = message;
+//        addLogToFile(message);
+//        System.out.println(message);
+//    }
 
+    public LogHandler () {
+        filename = "serverlog.txt";
+        file = new File(filename);
+        try {
+            fileWriter = new FileWriter(file, true);
+            fileWriter.write("Serverlog starting ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void logfile(String l) {
-//        ny fil hver gang
-        File file = new File("Serverlog.txt");
-
-        Date date = new Date();
-//        StringWriter logLine = new StringWriter();
-
-        FileWriter fileWriter = new FileWriter(file, true);
-        fileWriter.write(date.toString() + " : " + l + "\n" );
-        fileWriter.close();
+    public void addLog(String message) {
+        System.out.println(message);
+        this.date = new Date();
+        try {
+            fileWriter = new FileWriter(file, true);
+            fileWriter.write(date.toString() + " : " + message + "\n");
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
