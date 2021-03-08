@@ -8,25 +8,22 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ClientHandler implements Runnable {
-    //    hvorfor static?
-    static Vector<String> activeclients = new Vector<>();
 
+    static Vector<String> activeclients = new Vector<>();
+    static Vector<ClientHandler> handler = new Vector<>();
     //    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
 //    kunne det lette overskueligheden med en klientklasse, så man havde socket-håndtering og User adskilt, ligesom i mario med dbmapper?
-    static Vector<String> registredClients = new Vector<>();
-    static Vector<Socket> socketList = new Vector<>();
-    static Vector<ClientHandler> handler = new Vector<>();
-    Socket clientSocket;
-    DataInputStream in;
-    DataOutputStream out;
-    String input = "";
-    String command = "";
+    protected Vector<String> registredClients = new Vector<>();
+    protected Socket clientSocket;
+    protected DataInputStream in;
+    protected  DataOutputStream out;
+    protected String input = "";
+    protected String command = "";
     //    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
-    String username = "";
-    String message = "";
-    String loggedInUser = "";
-
-    boolean isLoggedIn = false;
+   protected String username = "";
+    protected  String message = "";
+    protected String loggedInUser = "";
+    protected boolean isLoggedIn = false;
 
     //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
@@ -35,12 +32,12 @@ public class ClientHandler implements Runnable {
     }
 
     //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man opretter dette objekt?)
-    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String loggedInUser) {
+    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username, boolean isLoggedIn) {
         this.clientSocket = clientSocket;
         this.in = in;
         this.out = out;
-        this.loggedInUser = loggedInUser;
-        this.isLoggedIn = true;
+        this.username =username;
+        this.isLoggedIn = isLoggedIn;
     }
 
     @Override
@@ -60,7 +57,6 @@ public class ClientHandler implements Runnable {
                 if (in.available() > 1) {
                     input = in.readUTF();
                     StringTokenizer st = new StringTokenizer(input, "#");
-                    String username = "";
                     int countTokens = st.countTokens();
                     if (countTokens == 1) {
                         command = st.nextToken();
@@ -79,22 +75,16 @@ public class ClientHandler implements Runnable {
                     switch (command) {
                         case "CONNECT":
                             if (registredClients.contains(username) && !activeclients.contains(username) && this.loggedInUser.isEmpty()) {
-                                this.loggedInUser = username;
-                                this.isLoggedIn = true;
+                                loggedInUser = username;
+                                isLoggedIn = true;
                                 activeclients.add(loggedInUser);
-
-
-//                man kunne sætte den resterende værdi username, så man beholdt socket. man har vistnok al data udfyldt for newClient, så man kunne:
-                                handler.add(this);
-
-//                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
-//                                handler.add(newClient);
-
-                                broadcastUsers(onlineCommand());
+                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
+                                handler.add(newClient);
+                               broadcastUsers(onlineCommand());
                             } else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
                             break;
-                        case "SEND":
-                            sendMessage(username);
+                        case "SEND": if(username.equals("*")) {sendToaAll();} else {
+                            sendMessage(username);}
                             break;
                         case "CLOSE":
                             break;
@@ -123,8 +113,9 @@ public class ClientHandler implements Runnable {
     //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
     public StringBuilder onlineCommand() throws IOException {
         StringBuilder sb = new StringBuilder();
-        for (String activeclient : activeclients) {
-            sb.append(activeclient + ", ");
+        for (ClientHandler ch : handler) {
+            sb.append(ch.username +", ");
+
         }
         return sb;
     }
@@ -138,22 +129,15 @@ public class ClientHandler implements Runnable {
 
     public void sendToaAll() throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF("To all from " + this.username + message);
+            ch.out.writeUTF( loggedInUser +":"+ message);
         }
     }
 
-    public void sendMessage(String reciver) throws IOException {
+    public void sendMessage(String username) throws IOException {
 
         for (ClientHandler ch : handler) {
-            if (ch.username.equals(reciver) && ch.isLoggedIn == true) {
-                ch.out.writeUTF(username + ":" + message);
-            }
-
-        }
-
-        for (ClientHandler ch : handler) {
-            if (ch.username.equals(reciver) && ch.isLoggedIn == true) {
-                ch.out.writeUTF(this.username + ":" + message);
+            if (ch.username.equals(username) && ch.isLoggedIn == true) {
+                ch.out.writeUTF(loggedInUser + ":" + message);
             }
 
         }

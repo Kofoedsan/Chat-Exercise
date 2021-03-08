@@ -1,26 +1,26 @@
 package Client;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 
 public class ReaderWorker implements Runnable {
-    DataInputStream in = null;
+    DataInputStream in;
     String incomingText;
     public ReaderWorker(DataInputStream in) {
         this.in = in;
     }
-    String line;
 
     @Override
     public void run() {
 
         while (true) {
             try {
-                incomingText = in.readUTF();
-//                    if (!incomingText.equalsIgnoreCase("0")) {
-                System.out.println("besked fra server: " + incomingText);
-//                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                if(in.available() > 1){
+                    incomingText = in.readUTF();
+                    System.out.println("besked fra server: " + incomingText);
+                }
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
         }
     }
