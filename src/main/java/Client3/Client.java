@@ -1,11 +1,5 @@
-package Client;
-
-import Client3.ReaderWorker;
-import Client3.SenderWorker;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+package Client3;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 

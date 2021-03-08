@@ -8,30 +8,38 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ClientHandler implements Runnable {
+    //    hvorfor static?
     static Vector<String> activeclients = new Vector<>();
+
+    //    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
+//    kunne det lette overskueligheden med en klientklasse, så man havde socket-håndtering og User adskilt, ligesom i mario med dbmapper?
     static Vector<String> registredClients = new Vector<>();
     static Vector<Socket> socketList = new Vector<>();
     static Vector<ClientHandler> handler = new Vector<>();
     Socket clientSocket;
     DataInputStream in;
     DataOutputStream out;
-    String input ="";
-    String command ="";
-    String username="";
-    String message="";
-    String thisUser="";
-    boolean isLoggedIn;
+    String input = "";
+    String command = "";
+    //    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
+    String username = "";
+    String message = "";
+    String loggedInUser = "";
 
+    boolean isLoggedIn = false;
+
+    //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         //socketList.add(this.clientSocket);
     }
 
-    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username) {
+    //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man opretter dette objekt?)
+    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String loggedInUser) {
         this.clientSocket = clientSocket;
         this.in = in;
         this.out = out;
-        this.username = username;
+        this.loggedInUser = loggedInUser;
         this.isLoggedIn = true;
     }
 
@@ -48,31 +56,55 @@ public class ClientHandler implements Runnable {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
 
-            while(true){
-            if(in.available() > 1){
-                input = in.readUTF();
-                StringTokenizer st = new StringTokenizer(input, "#");
-                int countTokens = st.countTokens();
-                if (countTokens == 1){command = st.nextToken();}
-                if (countTokens == 2){command = st.nextToken(); username = st.nextToken();}
-                if (countTokens == 3){command = st.nextToken(); username = st.nextToken(); message = st.nextToken();}
-               // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
+            while (true) {
+                if (in.available() > 1) {
+                    input = in.readUTF();
+                    StringTokenizer st = new StringTokenizer(input, "#");
+                    String username = "";
+                    int countTokens = st.countTokens();
+                    if (countTokens == 1) {
+                        command = st.nextToken();
+                    }
+                    if (countTokens == 2) {
+                        command = st.nextToken();
+                        username = st.nextToken();
+                    }
+                    if (countTokens == 3) {
+                        command = st.nextToken();
+                        username = st.nextToken();
+                        message = st.nextToken();
+                    }
+                    // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
 
-            switch (command){
-                case "CONNECT":
-                    if (registredClients.contains(username) && !activeclients.contains(username))
-                {activeclients.add(username);
-                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
-                handler.add(newClient);
-                broadcastUsers(onlineCommand());}
-                     else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
-                     break;
-                case "SEND": sendToaAll(); break; //sendMessage(username);
-                case "CLOSE": break;
-               // case "4": break;
-               // case "5": break;
-                default: out.writeUTF("Du har ikke indtastet en gyldig kommando"); break;
-            }}
+                    switch (command) {
+                        case "CONNECT":
+                            if (registredClients.contains(username) && !activeclients.contains(username) && this.loggedInUser.isEmpty()) {
+                                this.loggedInUser = username;
+                                this.isLoggedIn = true;
+                                activeclients.add(loggedInUser);
+
+
+//                man kunne sætte den resterende værdi username, så man beholdt socket. man har vistnok al data udfyldt for newClient, så man kunne:
+                                handler.add(this);
+
+//                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username);
+//                                handler.add(newClient);
+
+                                broadcastUsers(onlineCommand());
+                            } else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
+                            break;
+                        case "SEND":
+                            sendMessage(username);
+                            break;
+                        case "CLOSE":
+                            break;
+                        // case "4": break;
+                        // case "5": break;
+                        default:
+                            out.writeUTF("Du har ikke indtastet en gyldig kommando");
+                            break;
+                    }
+                }
 
             }
 
@@ -85,49 +117,6 @@ public class ClientHandler implements Runnable {
             ioException.printStackTrace();
         }
 
-        Thread inputThread = new Thread(new ReaderWorker(in));
-        Thread outputThread = new Thread(new SenderWorker(out));
-        inputThread.start();
-        outputThread.start();
-
-
-
-
-//        Thread lytteLoop = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String inputString = "";
-//                while (true) {
-//                    try {
-//                        inputString = in.readUTF();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("client " + clientSocket.getInetAddress() + " skriver: " + inputString);
-////                }
-////            }
-////        });
-//
-//        Thread outputLoop = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String outputString = "";
-//                Scanner scanner = new Scanner(System.in);
-//                while (true) {
-//                    outputString = scanner.nextLine();
-//                    try {
-//                        out.writeUTF(outputString);
-//
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    System.out.println("server skriver: " + outputString);
-//                }
-//            }
-//        });
-//
-
-
         //TODO: Remember to close streams
     }
 
@@ -135,32 +124,41 @@ public class ClientHandler implements Runnable {
     public StringBuilder onlineCommand() throws IOException {
         StringBuilder sb = new StringBuilder();
         for (String activeclient : activeclients) {
-          sb.append(activeclient+", ");
+            sb.append(activeclient + ", ");
         }
         return sb;
     }
 
     public void broadcastUsers(StringBuilder sb) throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF("ONLINE#"+sb);
+            ch.out.writeUTF("ONLINE#" + sb);
         }
 
     }
+
     public void sendToaAll() throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF("To all from "+ this.username +message);
+            ch.out.writeUTF("To all from " + this.username + message);
         }
     }
 
     public void sendMessage(String reciver) throws IOException {
-             for (ClientHandler ch : handler) {
-                 if (ch.username.equals(reciver) && ch.isLoggedIn==true){
-                 ch.out.writeUTF(username+":"+ message);
-             }
 
-         }
+        for (ClientHandler ch : handler) {
+            if (ch.username.equals(reciver) && ch.isLoggedIn == true) {
+                ch.out.writeUTF(username + ":" + message);
+            }
+
+        }
+
+        for (ClientHandler ch : handler) {
+            if (ch.username.equals(reciver) && ch.isLoggedIn == true) {
+                ch.out.writeUTF(this.username + ":" + message);
+            }
+
         }
     }
+}
 
 
 
