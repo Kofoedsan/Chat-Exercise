@@ -1,5 +1,7 @@
 package server;
 
+import sun.rmi.runtime.Log;
+
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
@@ -27,6 +29,7 @@ public class ClientHandler implements Runnable {
     protected String loggedInUser = "";
     protected boolean isLoggedIn = false;
     protected Thread runningThread = null;
+    private LogHandler logger = new LogHandler();
 
     //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
@@ -42,6 +45,7 @@ public class ClientHandler implements Runnable {
         this.username = username;
         this.isLoggedIn = isLoggedIn;
     }
+
 
     @Override
     public void run() {
@@ -84,15 +88,20 @@ public class ClientHandler implements Runnable {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeclients.add(loggedInUser);
+
 //                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
 //                                handler.add(newClient);
                                 handler.add(this);
 
                                 broadcastUsers(onlineCommand());
-                            } else //CLOSE#2
+                            } else {//CLOSE#2
                                 out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
-//CLOSE#2
+                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
+
+
+                            }
                             break;
+
                         case "SEND":
                             if (username.equals("*")) {
                                 sendToaAll();
@@ -100,8 +109,11 @@ public class ClientHandler implements Runnable {
                                 sendMessage(username);
                             }
                             break;
+
                         case "CLOSE":
+                            logger.addLog("Client " + username + " logged out ");
                             close("1");
+
                             break;
 
                         default:
@@ -116,13 +128,19 @@ public class ClientHandler implements Runnable {
                             break;
                     }
                 }
-
             }
 
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+//    } catch(
+//    IOException ioException)
+//
+//    {
+//        ioException.printStackTrace();
     }
+
 
     private void close(String closeType) {
         try {
