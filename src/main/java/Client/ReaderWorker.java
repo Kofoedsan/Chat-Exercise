@@ -36,8 +36,9 @@ public class ReaderWorker implements Runnable {
                     }}else{
                         System.out.println(incomingText);}
             } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+                System.out.println("Connection lost ");
+                System.exit(1);
+        }
 
 
         }

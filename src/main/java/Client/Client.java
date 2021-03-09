@@ -14,7 +14,9 @@ public class Client implements Runnable {
         try {
             this.socket = new Socket(s, i);
         } catch (IOException e) {
-            e.printStackTrace();
+
+            System.out.println("Could not connect to server.. Stopping system... ");
+            System.exit(1);
         }
     }
 
@@ -25,14 +27,14 @@ public class Client implements Runnable {
         try {
             in = new DataInputStream(socket.getInputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not open connection on selected port.");
         }
 
         DataOutputStream out = null;
         try {
             out = new DataOutputStream(socket.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not open connection on selected port.");
         }
         Thread inputThread = new Thread(new ReaderWorker(in));
         Thread outputThread = new Thread(new SenderWorker(out));

@@ -93,9 +93,8 @@ public class ClientHandler implements Runnable {
                             } else {
                                 out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
 //                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
-                                logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + "disconnected");
+                                logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + " disconnected");
                                 close("2");
-
                             }
                             break;
                         case "SEND":

@@ -24,8 +24,7 @@ public class LogHandler {
             fileWriter = new FileWriter(file, true);
             fileWriter.write("Serverlog starting ");
         } catch (IOException e) {
-            e.printStackTrace();
-        }
+            System.out.println("Error when creating logfile. Check permission to write/Execute ");        }
     }
 
     public synchronized void addLog(String message) {
@@ -36,7 +35,8 @@ public class LogHandler {
             fileWriter.write(date.toString() + " : " + message + "\n");
             fileWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Could not open or write to log " + filename);
+
         }
     }
 }

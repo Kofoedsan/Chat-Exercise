@@ -12,7 +12,6 @@ public class SenderWorker implements Runnable {
     }
 
     String line;
-
     @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
@@ -21,7 +20,7 @@ public class SenderWorker implements Runnable {
                 line = scanner.nextLine();
                 out.writeUTF(line);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Error in sending message to server ");
             }
         }
     }
