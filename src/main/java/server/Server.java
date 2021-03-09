@@ -15,9 +15,9 @@ public class Server implements Runnable {
     protected Thread runningThread = null;
     protected boolean isStopped = false;
     public LogHandler loghandler = null;
-    private int maxThreads = Runtime.getRuntime().availableProcessors();
 
-    protected ExecutorService threadPool = Executors.newFixedThreadPool(maxThreads);
+
+    protected ExecutorService threadPool = Executors.newFixedThreadPool(12);
 //            er det ikke på sin plads at sætte maks til det antal brugere vi hardcoder? - Jo/NHK
 
 
@@ -50,7 +50,6 @@ public class Server implements Runnable {
             try {
                 //her tildeles en tråd i poolen en clienthanldere der lytter. ny tråd tildels først når ny client connecter
                 this.threadPool.execute(new ClientHandler(clientSocket));
-                //TODO en threadpool.interrupt til lukke for tråden ved et disconnect?
 
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -89,7 +88,7 @@ public class Server implements Runnable {
 
     public static void main(String[] args) {
         //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
-        Server server = new Server(8081);
+        Server server = new Server(9000);
         new Thread(server).start();
         //TODO: Make the server stop on command server.stop();
     }

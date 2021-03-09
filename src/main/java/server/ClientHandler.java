@@ -1,6 +1,5 @@
 package server;
 
-import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.io.*;
@@ -62,7 +61,6 @@ public class ClientHandler implements Runnable {
         try {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
-
             while (isRunning) {
                 if (in.available() > 1) {
                     input = in.readUTF();
@@ -88,20 +86,15 @@ public class ClientHandler implements Runnable {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeclients.add(loggedInUser);
-
 //                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
 //                                handler.add(newClient);
                                 handler.add(this);
-
                                 broadcastUsers(onlineCommand());
-                            } else {//CLOSE#2
+                            } else {
                                 out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
                                 logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
-
-
                             }
                             break;
-
                         case "SEND":
                             if (username.equals("*")) {
                                 sendToaAll();
@@ -109,61 +102,80 @@ public class ClientHandler implements Runnable {
                                 sendMessage(username);
                             }
                             break;
-
                         case "CLOSE":
                             logger.addLog("Client " + username + " logged out ");
-                            close("1");
-
+                            close("0");
                             break;
-
                         default:
 // kommandoen er ikke lykkedes - hvis der ikke er connected: CLOSE#1.
-                            if (isLoggedIn = false) {
+                            if (isLoggedIn == false) {
                                 close("1");
                             }
-                            if (isLoggedIn = true) {
+                            if (isLoggedIn == true) {
                                 out.writeUTF("Du har ikke indtastet en gyldig kommando");
                             }
-
                             break;
                     }
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-//    } catch(
-//    IOException ioException)
-//
-//    {
-//        ioException.printStackTrace();
     }
 
 
     private void close(String closeType) {
         try {
-            out.writeUTF("CLOSE#" + closeType);
-            Iterator<ClientHandler> i1 = handler.iterator();
-
-            while (i1.hasNext()) {
-                ClientHandler ch = i1.next();
-                if (ch.username.equals(loggedInUser)) {
-                    i1.remove();
-                }
+            switch (closeType) {
+                case "0":
+                    Iterator<ClientHandler> i1 = handler.iterator();
+                    while (i1.hasNext()) {
+                        ClientHandler ch = i1.next();
+                        if (ch.username.equals(loggedInUser)) {
+                            i1.remove();
+                        }
+                    }
+                    broadcastUsers(onlineCommand());
+                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+                    isLoggedIn=false;
+                    out.close();
+                    in.close();
+                    clientSocket.close();
+                    isRunning = false;
+                    break;
+                case "1":
+                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+                    isLoggedIn=false;
+                    out.close();
+                    in.close();
+                    clientSocket.close();
+                    isRunning = false;
+                    break;
+                case "2":
+                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+                    isLoggedIn=false;
+                    out.close();
+                    in.close();
+                    clientSocket.close();
+                    isRunning = false;
+                    break;
             }
-            //  activeclients.remove(loggedInUser);
-            // loggedInUser ="";
-            //isRunning = false;
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        try {
-            broadcastUsers(onlineCommand());
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+//        out.writeUTF("CLOSE#" + closeType);
+//
+//            //  activeclients.remove(loggedInUser);
+//            // loggedInUser ="";
+//            //isRunning = false;
+//        } catch (IOException ioException) {
+//            ioException.printStackTrace();
+//        }
+//        try {
+//            broadcastUsers(onlineCommand());
+//        } catch (IOException ioException) {
+//            ioException.printStackTrace();
+//        }
 
     }
 
@@ -173,7 +185,6 @@ public class ClientHandler implements Runnable {
         StringBuilder sb = new StringBuilder();
         for (ClientHandler ch : handler) {
             sb.append(ch.username + ", ");
-
         }
         return sb;
     }
@@ -182,7 +193,6 @@ public class ClientHandler implements Runnable {
         for (ClientHandler ch : handler) {
             ch.out.writeUTF("ONLINE#" + sb);
         }
-
     }
 
     public void sendToaAll() throws IOException {
@@ -197,7 +207,6 @@ public class ClientHandler implements Runnable {
             if (ch.username.equals(username) && ch.isLoggedIn == true) {
                 ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
             }
-
         }
     }
 }
