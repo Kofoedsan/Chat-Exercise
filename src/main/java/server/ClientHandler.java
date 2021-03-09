@@ -1,21 +1,20 @@
 package server;
 
 
-import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class ClientHandler implements Runnable {
 
-    static Vector<String> activeclients = new Vector<>();
+//    behøver man at have både handler og activeUsers?
+    static Vector<String> activeUsers = new Vector<>();
     static Vector<ClientHandler> handler = new Vector<>();
     //    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
 //    kunne det lette overskueligheden med en klientklasse, så man havde socket-håndtering og User adskilt, ligesom i mario med dbmapper?
-    protected Vector<String> registredClients = new Vector<>();
+    protected Vector<String> registeredUsers = new Vector<>();
     protected Socket clientSocket;
     protected DataInputStream in;
     protected DataOutputStream out;
@@ -51,9 +50,9 @@ public class ClientHandler implements Runnable {
         synchronized (this) {
             this.runningThread = Thread.currentThread();
         }
-        registredClients.add("user1");
-        registredClients.add("user2");
-        registredClients.add("user3");
+        registeredUsers.add("user1");
+        registeredUsers.add("user2");
+        registeredUsers.add("user3");
 
 
         //TODO: lytteLoop
@@ -82,10 +81,10 @@ public class ClientHandler implements Runnable {
 
                     switch (command) {
                         case "CONNECT":
-                            if (registredClients.contains(username) && this.loggedInUser.isEmpty() && !activeclients.contains(username) ) {
+                            if (registeredUsers.contains(username) && this.loggedInUser.isEmpty() && !activeUsers.contains(username) ) {
                                 loggedInUser = username;
                                 isLoggedIn = true;
-                                activeclients.add(loggedInUser);
+                                activeUsers.add(loggedInUser);
 //                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
 //                                handler.add(newClient);
                                 handler.add(this);
@@ -127,7 +126,15 @@ public class ClientHandler implements Runnable {
     private void close(String closeType) {
         try {
             switch (closeType) {
+//               normal close
                 case "0":
+                    Iterator<String> i2 = activeUsers.iterator();
+                    while (i2.hasNext()) {
+                        String ac = i2.next();
+                        if (ac.equals(loggedInUser)) {
+                            i2.remove();
+                        }
+                    }
                     Iterator<ClientHandler> i1 = handler.iterator();
                     while (i1.hasNext()) {
                         ClientHandler ch = i1.next();
@@ -135,32 +142,23 @@ public class ClientHandler implements Runnable {
                             i1.remove();
                         }
                     }
-                    Iterator<String> i2 = activeclients.iterator();
-                    while (i2.hasNext()) {
-                        String ac = i2.next();
-                        if (ac.equals(loggedInUser)) {
-                            i2.remove();
-                        }
-                    }
+
                     broadcastUsers(onlineCommand());
-                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+//                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+                    out.writeUTF("CLOSE#" + closeType);
                     isLoggedIn=false;
                     out.close();
                     in.close();
                     clientSocket.close();
                     isRunning = false;
                     break;
+
+//                    illigal input - (client not: logged in, added to activeUsers + handler)
                 case "1":
-                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
-                    isLoggedIn=false;
-                    out.close();
-                    in.close();
-                    clientSocket.close();
-                    isRunning = false;
-                    break;
                 case "2":
-                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
-                    isLoggedIn=false;
+//                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
+                    out.writeUTF("CLOSE#" + closeType);
+//                    isLoggedIn=false;
                     out.close();
                     in.close();
                     clientSocket.close();
