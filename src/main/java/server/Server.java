@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Server implements Runnable{
 
@@ -28,7 +29,6 @@ public class Server implements Runnable{
     @Override
     public void run() {
 
-
         synchronized (this){
             this.runningThread = Thread.currentThread();
         }
@@ -47,6 +47,7 @@ public class Server implements Runnable{
             try {
                 //her tildeles en tråd i poolen en clienthanldere der lytter. ny tråd tildels først når ny client connecter
                 this.threadPool.execute(new ClientHandler(clientSocket));
+
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -82,7 +83,7 @@ public class Server implements Runnable{
 
     public static void main(String[] args) {
         //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
-        Server server = new Server(8080);
+        Server server = new Server(8081);
         new Thread(server).start();
        //TODO: Make the server stop on command server.stop();
     }

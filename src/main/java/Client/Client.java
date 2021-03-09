@@ -38,10 +38,13 @@ public class Client implements Runnable {
         Thread outputThread = new Thread(new SenderWorker(out));
         inputThread.start();
         outputThread.start();
+
     }
 
+
     public static void main(String[] args) {
-        Thread chatClientThread = new Thread(new Client("0.0.0.0", 8080));
+        Thread chatClientThread = new Thread(new Client("0.0.0.0", 8081));
         chatClientThread.start();
+
     }
 }

@@ -3,6 +3,7 @@ package server;
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -19,11 +20,13 @@ public class ClientHandler implements Runnable {
     protected  DataOutputStream out;
     protected String input = "";
     protected String command = "";
+    protected boolean isRunning = true;
     //    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
    protected String username = "";
     protected  String message = "";
     protected String loggedInUser = "";
     protected boolean isLoggedIn = false;
+    protected Thread runningThread= null;
 
     //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
@@ -42,6 +45,9 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        synchronized (this){
+            this.runningThread = Thread.currentThread();
+        }
         registredClients.add("user1");
         registredClients.add("user2");
         registredClients.add("user3");
@@ -53,7 +59,7 @@ public class ClientHandler implements Runnable {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());
 
-            while (true) {
+            while (isRunning) {
                 if (in.available() > 1) {
                     input = in.readUTF();
                     StringTokenizer st = new StringTokenizer(input, "#");
@@ -86,7 +92,8 @@ public class ClientHandler implements Runnable {
                         case "SEND": if(username.equals("*")) {sendToaAll();} else {
                             sendMessage(username);}
                             break;
-                        case "CLOSE": out.writeUTF("CLOSE#0");
+                        case "CLOSE": close();
+
                             break;
                         // case "4": break;
                         // case "5": break;
@@ -101,15 +108,32 @@ public class ClientHandler implements Runnable {
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
+    }
+
+    private void close() {
         try {
-            out.writeUTF("Connected");
+            out.writeUTF("CLOSE#0");
+            Iterator<ClientHandler> i1 = handler.iterator();
+
+            while (i1.hasNext()){
+                ClientHandler ch = i1.next();
+                if (ch.username.equals(loggedInUser)){
+                    i1.remove();
+                }
+            }
+          //  activeclients.remove(loggedInUser);
+           // loggedInUser ="";
+            //isRunning = false;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+        try {
+            broadcastUsers(onlineCommand());
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
 
-        //TODO: Remember to close streams
     }
-
 
 
     //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
