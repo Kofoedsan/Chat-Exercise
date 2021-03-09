@@ -82,7 +82,7 @@ public class ClientHandler implements Runnable {
 
                     switch (command) {
                         case "CONNECT":
-                            if (registredClients.contains(username) && !activeclients.contains(username) && this.loggedInUser.isEmpty()) {
+                            if (registredClients.contains(username) && this.loggedInUser.isEmpty() && !activeclients.contains(username) ) {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeclients.add(loggedInUser);
@@ -133,6 +133,13 @@ public class ClientHandler implements Runnable {
                         ClientHandler ch = i1.next();
                         if (ch.username.equals(loggedInUser)) {
                             i1.remove();
+                        }
+                    }
+                    Iterator<String> i2 = activeclients.iterator();
+                    while (i2.hasNext()) {
+                        String ac = i2.next();
+                        if (ac.equals(loggedInUser)) {
+                            i2.remove();
                         }
                     }
                     broadcastUsers(onlineCommand());
