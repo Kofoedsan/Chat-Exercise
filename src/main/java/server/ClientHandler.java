@@ -17,16 +17,16 @@ public class ClientHandler implements Runnable {
     protected Vector<String> registredClients = new Vector<>();
     protected Socket clientSocket;
     protected DataInputStream in;
-    protected  DataOutputStream out;
+    protected DataOutputStream out;
     protected String input = "";
     protected String command = "";
     protected boolean isRunning = true;
     //    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
-   protected String username = "";
-    protected  String message = "";
+    protected String username = "";
+    protected String message = "";
     protected String loggedInUser = "";
     protected boolean isLoggedIn = false;
-    protected Thread runningThread= null;
+    protected Thread runningThread = null;
 
     //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
     public ClientHandler(Socket clientSocket) throws IOException {
@@ -39,13 +39,13 @@ public class ClientHandler implements Runnable {
         this.clientSocket = clientSocket;
         this.in = in;
         this.out = out;
-        this.username =username;
+        this.username = username;
         this.isLoggedIn = isLoggedIn;
     }
 
     @Override
     public void run() {
-        synchronized (this){
+        synchronized (this) {
             this.runningThread = Thread.currentThread();
         }
         registredClients.add("user1");
@@ -84,21 +84,35 @@ public class ClientHandler implements Runnable {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeclients.add(loggedInUser);
-                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
-                                handler.add(newClient);
-                               broadcastUsers(onlineCommand());
-                            } else out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
-                            break;
-                        case "SEND": if(username.equals("*")) {sendToaAll();} else {
-                            sendMessage(username);}
-                            break;
-                        case "CLOSE": close();
+//                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
+//                                handler.add(newClient);
+                                handler.add(this);
 
+                                broadcastUsers(onlineCommand());
+                            } else //CLOSE#2
+                                out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
+//CLOSE#2
                             break;
-                        // case "4": break;
-                        // case "5": break;
+                        case "SEND":
+                            if (username.equals("*")) {
+                                sendToaAll();
+                            } else {
+                                sendMessage(username);
+                            }
+                            break;
+                        case "CLOSE":
+                            close("1");
+                            break;
+
                         default:
-                            out.writeUTF("Du har ikke indtastet en gyldig kommando");
+// kommandoen er ikke lykkedes - hvis der ikke er connected: CLOSE#1.
+                            if (isLoggedIn = false) {
+                                close("1");
+                            }
+                            if (isLoggedIn = true) {
+                                out.writeUTF("Du har ikke indtastet en gyldig kommando");
+                            }
+
                             break;
                     }
                 }
@@ -110,19 +124,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void close() {
+    private void close(String closeType) {
         try {
-            out.writeUTF("CLOSE#0");
+            out.writeUTF("CLOSE#" + closeType);
             Iterator<ClientHandler> i1 = handler.iterator();
 
-            while (i1.hasNext()){
+            while (i1.hasNext()) {
                 ClientHandler ch = i1.next();
-                if (ch.username.equals(loggedInUser)){
+                if (ch.username.equals(loggedInUser)) {
                     i1.remove();
                 }
             }
-          //  activeclients.remove(loggedInUser);
-           // loggedInUser ="";
+            //  activeclients.remove(loggedInUser);
+            // loggedInUser ="";
             //isRunning = false;
         } catch (IOException ioException) {
             ioException.printStackTrace();
@@ -140,7 +154,7 @@ public class ClientHandler implements Runnable {
     public StringBuilder onlineCommand() throws IOException {
         StringBuilder sb = new StringBuilder();
         for (ClientHandler ch : handler) {
-            sb.append(ch.username +", ");
+            sb.append(ch.username + ", ");
 
         }
         return sb;
@@ -155,7 +169,7 @@ public class ClientHandler implements Runnable {
 
     public void sendToaAll() throws IOException {
         for (ClientHandler ch : handler) {
-            ch.out.writeUTF( "MESSAGE#"+loggedInUser+"#"+message);
+            ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
         }
     }
 
@@ -163,7 +177,7 @@ public class ClientHandler implements Runnable {
 
         for (ClientHandler ch : handler) {
             if (ch.username.equals(username) && ch.isLoggedIn == true) {
-                ch.out.writeUTF("MESSAGE#"+loggedInUser + "#" + message);
+                ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
             }
 
         }
