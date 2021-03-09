@@ -7,29 +7,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class Server implements Runnable{
+public class Server implements Runnable {
 
     protected ServerSocket serverSocket = null;
     protected int serverPort;
     protected Socket clientSocket = null;
-    protected Thread runningThread= null;
-    protected boolean isStopped    = false;
-    protected LogHandler loghandler = null;
+    protected Thread runningThread = null;
+    protected boolean isStopped = false;
+    public LogHandler loghandler = null;
+    private int maxThreads = Runtime.getRuntime().availableProcessors();
 
-    protected ExecutorService threadPool =
-//            er det ikke på sin plads at sætte maks til det antal brugere vi hardcoder?
-            Executors.newFixedThreadPool(100);
+    protected ExecutorService threadPool = Executors.newFixedThreadPool(maxThreads);
+//            er det ikke på sin plads at sætte maks til det antal brugere vi hardcoder? - Jo/NHK
+
 
     public Server(int serverPort) {
         this.serverPort = serverPort;
 
     }
 
-//    hvorfor er det nu, at det er en fordel at denne proces kører som en tråd?
+    //    hvorfor er det nu, at det er en fordel at denne proces kører som en tråd?
+
+
     @Override
     public void run() {
 
-        synchronized (this){
+        synchronized (this) {
             this.runningThread = Thread.currentThread();
         }
 
@@ -37,7 +40,7 @@ public class Server implements Runnable{
         loghandler.addLog("server started");
 
         openSS();
-        while(!isStopped()){
+        while (!isStopped()) {
             try {
                 clientSocket = this.serverSocket.accept();
                 loghandler.addLog("client with adress " + clientSocket.getInetAddress() + " connected.");
@@ -47,6 +50,7 @@ public class Server implements Runnable{
             try {
                 //her tildeles en tråd i poolen en clienthanldere der lytter. ny tråd tildels først når ny client connecter
                 this.threadPool.execute(new ClientHandler(clientSocket));
+                //TODO en threadpool.interrupt til lukke for tråden ved et disconnect?
 
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -58,8 +62,9 @@ public class Server implements Runnable{
     private synchronized boolean isStopped() {
         return this.isStopped;
     }
+
     //Stop metode til at lukke serveren
-    public synchronized void stop(){
+    public synchronized void stop() {
         this.isStopped = true;
         try {
             this.serverSocket.close();
@@ -68,8 +73,9 @@ public class Server implements Runnable{
             throw new RuntimeException("Serveren blev revet fra hinanden");
         }
     }
+
     //Åbner serverSocket
-    private void openSS(){
+    private void openSS() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
             loghandler.addLog("server listening at port " + serverPort);
@@ -85,7 +91,7 @@ public class Server implements Runnable{
         //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
         Server server = new Server(8081);
         new Thread(server).start();
-       //TODO: Make the server stop on command server.stop();
+        //TODO: Make the server stop on command server.stop();
     }
 
 }
