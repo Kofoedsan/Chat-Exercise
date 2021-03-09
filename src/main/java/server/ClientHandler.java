@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class ClientHandler implements Runnable {
 
-//    behøver man at have både handler og activeUsers?
+    //    behøver man at have både handler og activeUsers?
     static Vector<String> activeUsers = new Vector<>();
     static Vector<ClientHandler> handler = new Vector<>();
     //    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
@@ -50,9 +50,9 @@ public class ClientHandler implements Runnable {
         synchronized (this) {
             this.runningThread = Thread.currentThread();
         }
-        registeredUsers.add("user1");
-        registeredUsers.add("user2");
-        registeredUsers.add("user3");
+        registeredUsers.add("USER1");
+        registeredUsers.add("USER2");
+        registeredUsers.add("USER3");
 
 
         //TODO: lytteLoop
@@ -81,7 +81,7 @@ public class ClientHandler implements Runnable {
 
                     switch (command) {
                         case "CONNECT":
-                            if (registeredUsers.contains(username) && this.loggedInUser.isEmpty() && !activeUsers.contains(username) ) {
+                            if (registeredUsers.contains(username) && this.loggedInUser.isEmpty() && !activeUsers.contains(username)) {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeUsers.add(loggedInUser);
@@ -89,9 +89,13 @@ public class ClientHandler implements Runnable {
 //                                handler.add(newClient);
                                 handler.add(this);
                                 broadcastUsers(onlineCommand());
+                                logger.addLog("CONNECT: User " + username + " logged in ");
                             } else {
-                                out.writeUTF("illegal input was recieved"); //clientSocket.close(); System.exit(1);
-                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
+                                out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
+//                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
+                                logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + "disconnected");
+                                close("2");
+
                             }
                             break;
                         case "SEND":
@@ -102,12 +106,16 @@ public class ClientHandler implements Runnable {
                             }
                             break;
                         case "CLOSE":
-                            logger.addLog("Client " + username + " logged out ");
+//                            logger.addLog("User" + username + " logged out ");
+                            logger.addLog("CLOSE#0: User " + username + " logged out ");
+
                             close("0");
                             break;
                         default:
+
 // kommandoen er ikke lykkedes - hvis der ikke er connected: CLOSE#1.
                             if (isLoggedIn == false) {
+                                logger.addLog("CLOSE#1: client with address " + clientSocket.getInetAddress() + "disconnected");
                                 close("1");
                             }
                             if (isLoggedIn == true) {
@@ -146,7 +154,7 @@ public class ClientHandler implements Runnable {
                     broadcastUsers(onlineCommand());
 //                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
-                    isLoggedIn=false;
+                    isLoggedIn = false;
                     out.close();
                     in.close();
                     clientSocket.close();
