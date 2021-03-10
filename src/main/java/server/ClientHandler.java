@@ -152,6 +152,8 @@ public class ClientHandler implements Runnable {
             switch (closeType) {
 //               normal close
                 case "0":
+                    activeUsers.remove(this);
+                    handler.remove(this);
                     Iterator<String> i2 = activeUsers.iterator();
                     while (i2.hasNext()) {
                         String ac = i2.next();
@@ -162,7 +164,7 @@ public class ClientHandler implements Runnable {
                     Iterator<ClientHandler> i1 = handler.iterator();
                     while (i1.hasNext()) {
                         ClientHandler ch = i1.next();
-                        if (ch.username.equals(loggedInUser)) {
+                        if (ch.loggedInUser.equals(loggedInUser)) {
                             i1.remove();
                         }
                     }
@@ -170,26 +172,20 @@ public class ClientHandler implements Runnable {
                     broadcastUsers(onlineCommand());
 //                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
-                    isLoggedIn = false;
-                    //  out.close();
-                    // in.close(); pool lukker selv, kan skabe fejl for andre users MÅSKE -> THIS. ??
-                    // clientSocket.close();
-                    isRunning = false;
+                    this.isLoggedIn = false;
+                    this.isRunning = false;
                     break;
 
 //                    illigal input - (client not: logged in, added to activeUsers + handler)
                 case "1":
                     out.writeUTF("CLOSE#" + closeType);
-                    isRunning = false;
+                    this.isLoggedIn = false;
+                    this.isRunning = false;
                     break;
                 case "2":
-//                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
-//                  isLoggedIn=false;
-//                  out.close();   pool lukker selv, kan skabe fejl for andre users MÅSKE ->THIS. ??
-//                  in.close();
-//                  clientSocket.close();
-                    isRunning = false;
+                    this.isLoggedIn = false;
+                    this.isRunning = false;
                     break;
             }
         } catch (IOException e) {
@@ -213,17 +209,19 @@ public class ClientHandler implements Runnable {
 
 
     //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
-    public StringBuilder onlineCommand() throws IOException {
-        StringBuilder sb = new StringBuilder();
+    public StringBuffer onlineCommand() throws IOException {
+
+        StringBuffer buffer = new StringBuffer();
         for (ClientHandler ch : handler) {
             if (ch.isLoggedIn == true) {
-                sb.append(ch.loggedInUser + ", ");
+                if (buffer.length() != 0){buffer.append(",");}
+                buffer.append(ch.loggedInUser);
             }
         }
-        return sb;
+        return buffer;
     }
 
-    public void broadcastUsers(StringBuilder sb) throws IOException {
+    public void broadcastUsers(StringBuffer sb) throws IOException {
         for (ClientHandler ch : handler) {
             ch.out.writeUTF("ONLINE#" + sb);
         }
