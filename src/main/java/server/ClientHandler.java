@@ -65,16 +65,24 @@ public class ClientHandler implements Runnable {
                     input = in.readUTF();
                     StringTokenizer st = new StringTokenizer(input, "#");
                     int countTokens = st.countTokens();
+                    if (countTokens <=0 || countTokens >3){close("1");}
                     if (countTokens == 1) {
                         command = st.nextToken();
+                        if (!command.equalsIgnoreCase("CLOSE"))
+                        {close("1");}
                     }
                     if (countTokens == 2) {
                         command = st.nextToken();
                         username = st.nextToken();
+                        if (!command.equalsIgnoreCase("CONNECT")){
+                            close("1");
+                       }
                     }
                     if (countTokens == 3) {
                         command = st.nextToken();
+                        if (command == "CLOSE") close("3");
                         username = st.nextToken();
+                        if (!registeredUsers.contains(username)){close("3");}
                         message = st.nextToken();
                     }
                     // NONO  {out.writeUTF("Du har ikke indtastet en gyldig kommand");}
@@ -91,18 +99,13 @@ public class ClientHandler implements Runnable {
                                 broadcastUsers(onlineCommand());
                                 logger.addLog("CONNECT: User " + username + " logged in ");
                             } else {
-                                out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
+                              //  out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
 //                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
                                 logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + " disconnected");
                                 close("2");
                             }
                             break;
                         case "SEND":
-
-                                if (registeredUsers.contains(username)) System.out.println("ja");
-                                else System.out.println("nej");
-
-
                             if (username.equals("*")) {
                                 sendToaAll();
                             } else {
@@ -167,6 +170,9 @@ public class ClientHandler implements Runnable {
 
 //                    illigal input - (client not: logged in, added to activeUsers + handler)
                 case "1":
+                    out.writeUTF("CLOSE#" + closeType);
+                    isRunning = false;
+                    break;
                 case "2":
 //                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
