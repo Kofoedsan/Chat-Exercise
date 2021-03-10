@@ -115,9 +115,9 @@ public class ClientHandler implements Runnable {
                                 sendToaAll();
                             }
                                 if (username.contains(",")) {
-                                    sendToaSelected(message);
+                                    sendToaSelected(username);
                                 }
-                                if (username.contains(username)) {
+                                if (username.equals(username)) {
                                     sendMessage(username);
                                 }
                             break;
@@ -246,15 +246,12 @@ public class ClientHandler implements Runnable {
 
     public void sendToaSelected(String username) throws IOException {
         String[] usernames = username.split(",");
-        for (int i = 0; i < usernames.length; i++) {
-            if (username.equals(i)){
-                System.out.println(username);
-        }
-        for (ClientHandler ch : handler) {
-            if (ch.loggedInUser.equals(username)) {
-                ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
-            }
-            }
+          for (String selectedUsers:usernames){
+                  for (ClientHandler ch : handler) {
+                      if (ch.loggedInUser.equals(selectedUsers)) {
+                          ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
+                      }
+                  }
         }
     }
 }
