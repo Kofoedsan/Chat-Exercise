@@ -90,6 +90,10 @@ public class ClientHandler implements Runnable {
                                 handler.add(this);
                                 broadcastUsers(onlineCommand());
                                 logger.addLog("CONNECT: User " + username + " logged in ");
+                                for (ClientHandler clientHandler : handler) {
+                                    System.out.println(clientHandler.in);
+                                    System.out.println(clientHandler.out);
+                                }
                             } else {
                                 out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
 //                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
@@ -154,9 +158,9 @@ public class ClientHandler implements Runnable {
 //                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
                     isLoggedIn = false;
-                    out.close();
-                    in.close();
-                    clientSocket.close();
+                  //  out.close();
+                   // in.close(); pool lukker selv, kan skabe fejl for andre users MÅSKE -> THIS. ??
+                   // clientSocket.close();
                     isRunning = false;
                     break;
 
@@ -165,10 +169,10 @@ public class ClientHandler implements Runnable {
                 case "2":
 //                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
-//                    isLoggedIn=false;
-                    out.close();
-                    in.close();
-                    clientSocket.close();
+//                  isLoggedIn=false;
+//                  out.close();   pool lukker selv, kan skabe fejl for andre users MÅSKE ->THIS. ??
+//                  in.close();
+//                  clientSocket.close();
                     isRunning = false;
                     break;
             }
