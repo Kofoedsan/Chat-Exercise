@@ -95,8 +95,7 @@ public class ClientHandler implements Runnable {
                                     System.out.println(clientHandler.out);
                                 }
                             } else {
-                                out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
-//                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
+
                                 logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + " disconnected");
                                 close("2");
                             }
@@ -218,7 +217,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendMessage(String username) throws IOException {
-
         for (ClientHandler ch : handler) {
             if (ch.username.equals(username) && ch.isLoggedIn == true) {
                 ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
