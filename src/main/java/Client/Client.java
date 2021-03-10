@@ -40,7 +40,6 @@ public class Client implements Runnable {
         Thread outputThread = new Thread(new SenderWorker(out));
         inputThread.start();
         outputThread.start();
-
     }
 
 

@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <finalName>chat-Client3</finalName>
+        <finalName>chat-Client</finalName>
     </properties>
 
     <dependencies>
@@ -34,7 +34,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>Client3.Client</mainClass>
+                            <mainClass>Client.Client</mainClass>
                         </manifest>
                     </archive>
                     <!-- Do not change this name, it you count on following our instructions -->

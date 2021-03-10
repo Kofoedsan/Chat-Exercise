@@ -3,6 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,7 +29,7 @@ public class Server implements Runnable {
 
     //    hvorfor er det nu, at det er en fordel at denne proces kører som en tråd?
 
-
+Scanner scanner = new Scanner(System.in);
     @Override
     public void run() {
 
@@ -55,8 +56,9 @@ public class Server implements Runnable {
                 ioException.printStackTrace();
             }
 
+            }
         }
-    }
+
 
 
     private synchronized boolean isStopped() {
