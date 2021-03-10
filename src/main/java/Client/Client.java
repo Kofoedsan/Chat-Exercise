@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Scanner;
+
 
 
 public class Client implements Runnable {
@@ -19,7 +19,6 @@ public class Client implements Runnable {
             System.exit(1);
         }
     }
-
 
     @Override
     public void run() {
