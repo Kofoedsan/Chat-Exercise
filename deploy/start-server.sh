@@ -1,3 +1,3 @@
 #!/bin/sh
 
-java -cp chat-client-server.jar server.Server 8080
+java -cp chat-server.jar server.Server 8080
