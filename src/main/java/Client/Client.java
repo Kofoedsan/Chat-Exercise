@@ -45,7 +45,21 @@ public class Client implements Runnable {
     }
 
     public static void main(String[] args) {
-        Thread chatClientThread = new Thread(new Client("0.0.0.0", 9000));
+        String ip;
+        int port;
+        try {
+            if (args.length == 2) {
+                ip = args[0];
+                port = Integer.parseInt(args[1]);
+            }
+            else {
+                throw new IllegalArgumentException("# Server not provided with the right arguments");
+            }
+        } catch (NumberFormatException ne) {
+            System.out.println("# Illegal inputs provided when starting the server!");
+            return;
+        }
+        Thread chatClientThread = new Thread(new Client(ip, port));
         chatClientThread.start();
 
     }

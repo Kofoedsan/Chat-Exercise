@@ -9,11 +9,8 @@ import java.util.Vector;
 
 public class ClientHandler implements Runnable {
 
-    //    behøver man at have både handler og activeUsers?
     static Vector<String> activeUsers = new Vector<>();
     static Vector<ClientHandler> handler = new Vector<>();
-    //    kunne det ikke være smart hvis denne variabel holdt clienthandler objekter? som Vector<Client>
-//    kunne det lette overskueligheden med en klientklasse, så man havde socket-håndtering og User adskilt, ligesom i mario med dbmapper?
     protected Vector<String> registeredUsers = new Vector<>();
     protected Socket clientSocket;
     protected DataInputStream in;
@@ -21,7 +18,6 @@ public class ClientHandler implements Runnable {
     protected String input = "";
     protected String command = "";
     protected boolean isRunning = true;
-    //    forslag - at ændre username til at være det givne username som serveren håndteer enten det er modtager af besked eller loginforsøg.
     protected String username = "";
     protected String message = "";
     protected String loggedInUser = "";
@@ -29,19 +25,9 @@ public class ClientHandler implements Runnable {
     protected Thread runningThread = null;
     private LogHandler logger = new LogHandler();
 
-    //    den endnu ikke #connectede () klient (som kun lige har bundet an til en socket)
+
     public ClientHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
-        //socketList.add(this.clientSocket);
-    }
-
-    //    den connectede klient. (hvad sker der med det ikke-connectede objekt når man opretter dette objekt?)
-    public ClientHandler(Socket clientSocket, DataInputStream in, DataOutputStream out, String username, boolean isLoggedIn) {
-        this.clientSocket = clientSocket;
-        this.in = in;
-        this.out = out;
-        this.username = username;
-        this.isLoggedIn = isLoggedIn;
     }
 
 
@@ -98,14 +84,11 @@ public class ClientHandler implements Runnable {
                                 loggedInUser = username;
                                 isLoggedIn = true;
                                 activeUsers.add(loggedInUser);
-//                                ClientHandler newClient = new ClientHandler(clientSocket, in, out, username, isLoggedIn);
-//                                handler.add(newClient);
+//
                                 handler.add(this);
                                 broadcastUsers(onlineCommand());
                                 logger.addLog("CONNECT: User " + username + " logged in ");
                             } else {
-                                //  out.writeUTF("username incorrect"); //clientSocket.close(); System.exit(1);
-//                                logger.addLog("Illegal input recived for client " + clientSocket + " terminating connection");
                                 logger.addLog("CLOSE#2: client with address " + clientSocket.getInetAddress() + " disconnected");
                                 close("2");
                             }
@@ -122,9 +105,7 @@ public class ClientHandler implements Runnable {
                                 }
                             break;
                         case "CLOSE":
-//                            logger.addLog("User" + username + " logged out ");
                             logger.addLog("CLOSE#0: User " + loggedInUser + " logged out ");
-
                             close("0");
                             break;
                         default:
@@ -170,7 +151,6 @@ public class ClientHandler implements Runnable {
                     }
 
                     broadcastUsers(onlineCommand());
-//                    out.writeUTF("Illegal input recived." + "\n" + "terminating connection");
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
                     this.isRunning = false;
@@ -191,24 +171,9 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        out.writeUTF("CLOSE#" + closeType);
-//
-//            //  activeclients.remove(loggedInUser);
-//            // loggedInUser ="";
-//            //isRunning = false;
-//        } catch (IOException ioException) {
-//            ioException.printStackTrace();
-//        }
-//        try {
-//            broadcastUsers(onlineCommand());
-//        } catch (IOException ioException) {
-//            ioException.printStackTrace();
-//        }
-
     }
 
 
-    //Kan erstattes ved at løbe igennem for boolean isLoggedIn evt. TODO
     public StringBuffer onlineCommand() throws IOException {
 
         StringBuffer buffer = new StringBuffer();

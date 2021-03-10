@@ -19,7 +19,7 @@ public class Server implements Runnable {
 
 
     protected ExecutorService threadPool = Executors.newFixedThreadPool(12);
-//            er det ikke på sin plads at sætte maks til det antal brugere vi hardcoder? - Jo/NHK
+
 
 
     public Server(int serverPort) {
@@ -27,9 +27,6 @@ public class Server implements Runnable {
 
     }
 
-    //    hvorfor er det nu, at det er en fordel at denne proces kører som en tråd?
-
-Scanner scanner = new Scanner(System.in);
     @Override
     public void run() {
 
@@ -49,7 +46,6 @@ Scanner scanner = new Scanner(System.in);
                 ioException.printStackTrace();
             }
             try {
-                //her tildeles en tråd i poolen en clienthanldere der lytter. ny tråd tildels først når ny client connecter
                 this.threadPool.execute(new ClientHandler(clientSocket));
 
             } catch (IOException ioException) {
@@ -65,8 +61,7 @@ Scanner scanner = new Scanner(System.in);
         return this.isStopped;
     }
 
-    //Stop metode til at lukke serveren
-    public synchronized void stop() {
+    public synchronized void serverStop() {
         this.isStopped = true;
         try {
             this.serverSocket.close();
@@ -76,7 +71,7 @@ Scanner scanner = new Scanner(System.in);
         }
     }
 
-    //Åbner serverSocket
+
     private void openSS() {
         try {
             this.serverSocket = new ServerSocket(this.serverPort);
@@ -90,10 +85,20 @@ Scanner scanner = new Scanner(System.in);
 
 
     public static void main(String[] args) {
-        //TODO: der skal laves om så der forsøges på args port, ellers standart port. Se Lars eksempel.
-        Server server = new Server(9000);
+        int port;
+        try {
+            if (args.length == 1) {
+                port = Integer.parseInt(args[0]);
+            }
+            else {
+                throw new IllegalArgumentException("# Server not provided with the right arguments");
+            }
+        } catch (NumberFormatException ne) {
+            System.out.println("# Illegal inputs provided when starting the server!");
+            return;
+        }
+        Server server = new Server(port);
         new Thread(server).start();
-        //TODO: Make the server stop on command server.stop();
     }
 
 }

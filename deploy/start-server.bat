@@ -1,4 +1,4 @@
 
-java -cp chat-client-server.jar server.Server 9000
+java -cp chat-client-server.jar server.Server 8080
 
 
