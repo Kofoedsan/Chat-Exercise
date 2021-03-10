@@ -133,23 +133,6 @@ public class ClientHandler implements Runnable {
             switch (closeType) {
 //               normal close
                 case "0":
-                    activeUsers.remove(this);
-                    handler.remove(this);
-                    Iterator<String> i2 = activeUsers.iterator();
-                    while (i2.hasNext()) {
-                        String ac = i2.next();
-                        if (ac.equals(loggedInUser)) {
-                            i2.remove();
-                        }
-                    }
-                    Iterator<ClientHandler> i1 = handler.iterator();
-                    while (i1.hasNext()) {
-                        ClientHandler ch = i1.next();
-                        if (ch.loggedInUser.equals(loggedInUser)) {
-                            i1.remove();
-                        }
-                    }
-
                     broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
@@ -158,45 +141,12 @@ public class ClientHandler implements Runnable {
 
 //                    illigal input - (client not: logged in, added to activeUsers + handler)
                 case "1":
-                    activeUsers.remove(this);
-                    handler.remove(this);
-                    Iterator<String> i3 = activeUsers.iterator();
-                    while (i3.hasNext()) {
-                        String ac = i3.next();
-                        if (ac.equals(loggedInUser)) {
-                            i3.remove();
-                        }
-                    }
-                    Iterator<ClientHandler> i4 = handler.iterator();
-                    while (i4.hasNext()) {
-                        ClientHandler ch = i4.next();
-                        if (ch.loggedInUser.equals(loggedInUser)) {
-                            i4.remove();
-                        }
-                    }
-
                     broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
                     this.isRunning = false;
                     break;
                 case "2":
-                    activeUsers.remove(this);
-                    handler.remove(this);
-                    Iterator<String> i5 = activeUsers.iterator();
-                    while (i5.hasNext()) {
-                        String ac = i5.next();
-                        if (ac.equals(loggedInUser)) {
-                            i5.remove();
-                        }
-                    }
-                    Iterator<ClientHandler> i6 = handler.iterator();
-                    while (i6.hasNext()) {
-                        ClientHandler ch = i6.next();
-                        if (ch.loggedInUser.equals(loggedInUser)) {
-                            i6.remove();
-                        }
-                    }
 
                     broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
@@ -206,6 +156,21 @@ public class ClientHandler implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        Iterator<String> i5 = activeUsers.iterator();
+        while (i5.hasNext()) {
+            String ac = i5.next();
+            if (ac.equals(loggedInUser)) {
+                i5.remove();
+            }
+        }
+        Iterator<ClientHandler> i6 = handler.iterator();
+        while (i6.hasNext()) {
+            ClientHandler ch = i6.next();
+            if (ch.loggedInUser.equals(loggedInUser)) {
+                i6.remove();
+            }
         }
     }
 
