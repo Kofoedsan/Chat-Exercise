@@ -200,7 +200,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void sendMessage(String username) throws IOException {
-
         for (ClientHandler ch : handler) {
             if (ch.loggedInUser.equals(username) && ch.isLoggedIn == true) {
                 ch.out.writeUTF("MESSAGE#" + loggedInUser + "#" + message);
