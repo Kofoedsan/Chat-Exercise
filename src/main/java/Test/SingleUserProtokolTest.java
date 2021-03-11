@@ -43,7 +43,7 @@ class SingleUserProtokolTest {
 
     @AfterAll
     void tearDownAll() {
-        testServer.stop();
+        testServer.serverStop();
     }
 
     @AfterEach
