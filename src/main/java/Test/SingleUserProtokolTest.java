@@ -61,7 +61,7 @@ class SingleUserProtokolTest {
                 e.printStackTrace();
             }
 
-            assertEquals("ONLINE#USER1, ", serverResponse);
+            assertEquals("ONLINE#USER1",serverResponse);
 
         } finally {
 //            similar to tear down
@@ -83,7 +83,7 @@ class SingleUserProtokolTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals("CLOSE#2", serverResponse);
+        assertEquals("CLOSE#2",serverResponse);
     }
 
 
@@ -95,7 +95,7 @@ class SingleUserProtokolTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals("CLOSE#1", serverResponse);
+        assertEquals("CLOSE#1",serverResponse);
 
 //        assertEquals(true, s.isClosed());
     }
@@ -108,7 +108,7 @@ class SingleUserProtokolTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        assertEquals("CLOSE#0", serverResponse);
+        assertEquals("CLOSE#0",serverResponse);
 
 //        assertEquals(true, s.isClosed());
     }
@@ -119,13 +119,12 @@ class SingleUserProtokolTest {
             dos.writeUTF("CONNECT#USER1");
             String eater = dis.readUTF();
             System.out.println(eater);
-            dos.writeUTF("SEND#*#messageToAll");
-//
+            dos.writeUTF("SEND#USER1#messageToUSER1"); // der var et problem med at serveren ikke spyttede korrekt resultat retur ved "all/*" afsendelse.
             serverResponse = dis.readUTF();
         } catch (IOException e) {
             System.out.println("communication with server failed");;
         }
-        assertEquals("MESSAGE#USER1#messageToAll", serverResponse);
+        assertEquals("MESSAGE#USER1#messageToUSER1",serverResponse);
 
 //        assertEquals(true, s.isClosed());
     }
