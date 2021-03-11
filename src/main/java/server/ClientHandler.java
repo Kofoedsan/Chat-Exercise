@@ -40,9 +40,6 @@ public class ClientHandler implements Runnable {
         registeredUsers.add("USER2");
         registeredUsers.add("USER3");
 
-
-        //TODO: lytteLoop
-        //TODO: COMMANDS
         try {
             in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(clientSocket.getOutputStream());

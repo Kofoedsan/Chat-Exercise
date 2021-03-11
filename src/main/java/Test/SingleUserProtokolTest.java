@@ -114,7 +114,7 @@ class SingleUserProtokolTest {
     }
 
     @Test
-    void message() {
+    void message(){
         try {
             dos.writeUTF("CONNECT#USER1");
             String eater = dis.readUTF();
