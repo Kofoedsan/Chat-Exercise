@@ -133,7 +133,6 @@ public class ClientHandler implements Runnable {
             switch (closeType) {
 //               normal close
                 case "0":
-                    broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
                     this.isRunning = false;
@@ -141,14 +140,11 @@ public class ClientHandler implements Runnable {
 
 //                    illigal input - (client not: logged in, added to activeUsers + handler)
                 case "1":
-                    broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
                     this.isRunning = false;
                     break;
                 case "2":
-
-                    broadcastUsers(onlineCommand());
                     out.writeUTF("CLOSE#" + closeType);
                     this.isLoggedIn = false;
                     this.isRunning = false;
@@ -171,6 +167,11 @@ public class ClientHandler implements Runnable {
             if (ch.loggedInUser.equals(loggedInUser)) {
                 i6.remove();
             }
+        }
+        try {
+            broadcastUsers(onlineCommand());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
         }
     }
 
